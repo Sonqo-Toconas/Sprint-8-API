@@ -28,7 +28,45 @@ const api = {
             status: 200
         });
     },
-
+    productForId: async(req,res) => {
+        let product = await db.Product.findByPk(req.params.id)
+                        .catch(err => console.log(err));
+            res.json(product)
+    },
+    createProduct: async (req, res) => {
+        db.Product.create({
+            name: req.body.name,
+            description: req.body.description,
+            price: parseFloat(req.body.price),
+            image: req.body.image,
+            category_id: req.body.category,
+            color_id: req.body.color
+        })
+        .then(confirm => {
+            let respuesta;
+            if (confirm) {
+                respuesta = {
+                    meta: {
+                        status: 200,
+                        total: confirm,
+                        url: '/api/admin/createProduct/:id'
+                    },
+                    data: confirm
+                }
+            } else {
+                respuesta = {
+                    meta: {
+                        status: 204,
+                        total: confirm.length,
+                        url: '/api/admin/createProduct/:id'
+                    },
+                    data: confirm
+                }
+            }
+            res.json(respuesta);
+        })
+        .catch(error => res.send(error))
+    },
     editProduct: async (req, res) => {
 
         const Product = await db.Product;
@@ -40,9 +78,9 @@ const api = {
                 name: req.body.name,
                 description: req.body.description,
                 price: parseFloat(req.body.price),
-                image: req.file ? req.file.filename : oldProduct.image,
+                image: req.body.image,
                 category_id: req.body.category,
-                color_id: req.body.colors
+                color_id: req.body.color
             },
             {
                 where: { id_product: idProduct }
