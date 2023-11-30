@@ -101,6 +101,49 @@ const api = {
                 res.json(respuesta);
             })
             .catch(error => res.send(error))
+    },
+
+    getProduct: async (req, res) => {
+        let idProduct = req.params.id;
+        let product = await db.Product.findByPk(idProduct, {
+            include: [
+                {
+                    model: db.Category,
+                    as: 'category'
+                },
+                {
+                    model: db.Color,
+                    as: 'color'
+                }
+            ]
+        });
+
+        if (!product) {
+            return res.status(404).send({
+                meta: {
+                    status: 404,
+                    message: 'Producto no encontrado'
+                }
+            });
+        }
+
+        let productResponse = {
+            id_product: product.id_product,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            image: product.image,
+            category: product.category,
+            color: product.color
+        };
+
+        res.status(200).send({
+            meta: {
+                status: 200,
+                url: '/api/admin/product/:id'
+            },
+            data: productResponse
+        });
     }
 }
 
