@@ -141,17 +141,41 @@ const api = {
             .catch(error => res.send(error))
     },
     products: async (req, res) => {
-        let product = await db.Product.findAll()
-
-        res.status(200).json({
-            count: product.length,
-            products: product.map(product => ({
-                id: product.id_product,
-                name: product.name,
-                description: product.description,
-            })),
-            status: 200
-        });
+        try {
+            let product = await db.Product.findAll({
+                include: [
+                    { model: db.Category, as: 'category' },
+                    { model: db.Color, as: 'color' }
+                ]
+            });
+    
+            let countByCategory = {};
+            product.forEach(p => {
+                if (!countByCategory[p.category.name]) {
+                    countByCategory[p.category.name] = 0;
+                }
+                countByCategory[p.category.name]++;
+            });
+    
+            res.status(200).json({
+                count: product.length,
+                countByCategory: countByCategory,
+                products: product.map(product => ({
+                    id: product.id_product,
+                    name: product.name,
+                    description: product.description,
+                    category: product.category.name,
+                    color: product.color.name,
+                    detail: 'URL para obtener el detalle del producto',
+                })),
+                status: 200
+            });
+        } catch (error) {
+            res.status(500).json({
+                error: 'Ha ocurrido un error',
+                status: 500
+            });
+        }
     },
 
     getProduct: async (req, res) => {
