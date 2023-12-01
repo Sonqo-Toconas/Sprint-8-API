@@ -140,6 +140,19 @@ const api = {
             })
             .catch(error => res.send(error))
     },
+    products: async (req, res) => {
+        let product = await db.Product.findAll()
+
+        res.status(200).json({
+            count: product.length,
+            products: product.map(product => ({
+                id: product.id_product,
+                name: product.name,
+                description: product.description,
+            })),
+            status: 200
+        });
+    },
 
     getProduct: async (req, res) => {
         let idProduct = req.params.id;
