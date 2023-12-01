@@ -16,6 +16,22 @@ const api = {
         });
     },
 
+    usersId: async (req, res) => {
+        let usersId = await db.User.findAll()
+
+        res.status(200).json({
+            count: usersId.length,
+            users: usersId.map(usersId => ({
+                id: usersId.id_user,
+                name: usersId.name,
+                email: usersId.email,
+                phone: usersId.phone,
+                image: "http://localhost:3030/image/" + usersId.image
+            })),
+            status: 200
+        })
+    },
+
     categories: async (req, res) => {
         let categories = await db.Category.findAll()
 
@@ -28,10 +44,10 @@ const api = {
             status: 200
         });
     },
-    productForId: async(req,res) => {
+    productForId: async (req, res) => {
         let product = await db.Product.findByPk(req.params.id)
-                        .catch(err => console.log(err));
-            res.json(product)
+            .catch(err => console.log(err));
+        res.json(product)
     },
     createProduct: async (req, res) => {
         db.Product.create({
@@ -42,30 +58,30 @@ const api = {
             category_id: req.body.category,
             color_id: req.body.color
         })
-        .then(confirm => {
-            let respuesta;
-            if (confirm) {
-                respuesta = {
-                    meta: {
-                        status: 200,
-                        total: confirm,
-                        url: '/api/admin/createProduct/:id'
-                    },
-                    data: confirm
+            .then(confirm => {
+                let respuesta;
+                if (confirm) {
+                    respuesta = {
+                        meta: {
+                            status: 200,
+                            total: confirm,
+                            url: '/api/admin/createProduct/:id'
+                        },
+                        data: confirm
+                    }
+                } else {
+                    respuesta = {
+                        meta: {
+                            status: 204,
+                            total: confirm.length,
+                            url: '/api/admin/createProduct/:id'
+                        },
+                        data: confirm
+                    }
                 }
-            } else {
-                respuesta = {
-                    meta: {
-                        status: 204,
-                        total: confirm.length,
-                        url: '/api/admin/createProduct/:id'
-                    },
-                    data: confirm
-                }
-            }
-            res.json(respuesta);
-        })
-        .catch(error => res.send(error))
+                res.json(respuesta);
+            })
+            .catch(error => res.send(error))
     },
     editProduct: async (req, res) => {
 
@@ -148,7 +164,7 @@ const api = {
                     { model: db.Color, as: 'color' }
                 ]
             });
-    
+
             let countByCategory = {};
             product.forEach(p => {
                 if (!countByCategory[p.category.name]) {
@@ -156,7 +172,7 @@ const api = {
                 }
                 countByCategory[p.category.name]++;
             });
-    
+
             res.status(200).json({
                 count: product.length,
                 countByCategory: countByCategory,
