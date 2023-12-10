@@ -231,11 +231,31 @@ const api = {
         res.status(200).send({
             meta: {
                 status: 200,
-                url: '/api/admin/product/:id'
+                url: '/api/products/:id'
             },
             data: productResponse
         });
-    }
+    },
+    getSolds: async (req, res) => {
+        try {
+            let solds = await db.Sold.findAll({
+                include: [
+                    { model: db.Product, as: 'product' },
+                    { model: db.User, as: 'user' }
+                ]
+            });
+            res.status(200).send({
+                meta: {
+                    status: 200,
+                    url: '/api/solds'
+                },
+                data: solds
+            });
+
+        } catch (error) {
+            res.status(500).json({ error: "Error al buscar datos" });
+        }
+    },
 }
 
 module.exports = api
